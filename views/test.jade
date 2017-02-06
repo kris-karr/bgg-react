@@ -1,0 +1,8 @@
+div
+    form(action='/pick',method='post')
+        div(data-role='fieldcontain')
+            fieldset(data-role='controlgroup')
+                label(for='username') username
+                    input(id='username',type='text',value='',placeholder='username e.g. zikky',name='username')
+        div(data-role='fieldcontain')   
+            input(type='submit',value='Pick!',data-transition='fade', data-theme='c')
