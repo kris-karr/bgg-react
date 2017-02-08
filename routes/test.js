@@ -13,7 +13,7 @@ router.post('/', function(req, res) {
     var pageVars = {};
     pageVars.firsttime = false;
 
-    mongoClient.connect(process.env.MONGODB_URL, function(err, db) {
+    mongoClient.connect(process.env.MONGODB_URI, function(err, db) {
         console.log("Connected correctly to server");
         findGames(db, function(docs) {
             pageVars.recordCount = docs.length;
