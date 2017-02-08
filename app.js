@@ -4,6 +4,8 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongoClient = require('mongodb').MongoClient, 
+  assert = require('assert');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -27,6 +29,19 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/test', test);
 
+app.get('/db', function(request, response) {
+  mongoClient.connect(process.env.MONGODB_URL, function(err, db) {
+    assert.equal(null, err);
+    console.log("Connected correctly to server");
+
+    insertDocuments(db, function() {
+      updateDocument(db, function() {
+        db.close();
+      });
+    });
+  });
+});
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -44,5 +59,30 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+var insertDocuments = function(db, callback) {
+  var collection = db.collection('documents');
+
+  collection.insertMany([
+    {a:1},{a:2},{a:3}
+  ], function(err, result) {
+    assert.equal(err, null);
+    assert.equal(3, result.result.n);
+    assert.equal(3, result.ops.length);
+    console.log("Inserted 3 documents into the document collection");
+    callback(result);
+  });
+}
+
+var updateDocument = function(db, callback) {
+  var collection = db.collection('documents');
+
+  collection.updateOne({a:2}, {$set:{b:1}}, function(err, result) {
+    assert.equal(err,null);
+    assert.equal(1,result.result.n);
+    console.log("Updated the document with the field a equal to 2");
+    callback(result);
+  });
+}
 
 module.exports = app;
