@@ -10,6 +10,7 @@ var mongoClient = require('mongodb').MongoClient,
 var index = require('./routes/index');
 var users = require('./routes/users');
 var test = require('./routes/test');
+var add_user = require('./routes/add_user');
 
 var app = express();
 
@@ -28,6 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/users', users);
 app.use('/test', test);
+app.use('/add_user', add_user);
 
 app.get('/db', function(request, response) {
   mongoClient.connect(process.env.MONGODB_URL, function(err, db) {

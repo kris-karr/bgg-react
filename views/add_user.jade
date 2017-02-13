@@ -1,0 +1,18 @@
+body
+    if firsttime
+        div
+            h1 Add user data to collection manager
+            form(action='/add_user',method='post')
+                div(data-role='fieldcontain')
+                    fieldset(data-role='controlgroup')
+                        label(for='username') username
+                            input(id='username',type='text',value='',placeholder='username e.g. zikky',name='username')
+                div(data-role='fieldcontain')   
+                    input(type='submit',value='Submit',data-transition='fade', data-theme='c')
+    else
+        div
+            h1 
+                | #{userData.username}'s data succesfully added
+            ul
+            for gameIdObject in userData.gameIds
+                li=gameIdObject.name
