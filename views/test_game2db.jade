@@ -1,0 +1,18 @@
+body
+    if firsttime
+        div
+            h1 Add game data to database
+            form(action='/test_game2db',method='post')
+                div(data-role='fieldcontain')
+                    fieldset(data-role='controlgroup')
+                        label(for='gameIds') Game Ids
+                            input(id='gameIds',type='text',value='',placeholder='list of game Ids',name='gameIds')
+                div(data-role='fieldcontain')   
+                    input(type='submit',value='Submit',data-transition='fade', data-theme='c')
+    else
+        div
+            h1 
+                | #{gamesData.length} Game Ids data succesfully added
+            ul
+            for gameItemObject in gamesData
+                li=gameItemObject.names[0].value
