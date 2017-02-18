@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var mongoClient = require('mongodb').MongoClient;
+var moment = require('moment');
 var GameApiServices = require('../bgg_api/game_api');
 var gameApi = new GameApiServices();
 
@@ -34,7 +35,9 @@ var findAndInsertGames = function(gameIds, db, callback) {
 	gameApi.getGamesDataArray(gameIds, function(gameObjectsArray) {
 		if (gameObjectsArray) {
 			for (var i = 0; i < gameObjectsArray.length; i++) {
-				collection.insertOne(gameObjectsArray[i]);
+				var gameObject = gameObjectsArray[i];
+				gameObject.updateTimestamp = moment();
+				collection.insertOne(gameObject);
 				callback(gameObjectsArray);
 			}
 		} else {

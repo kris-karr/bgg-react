@@ -322,7 +322,12 @@ module.exports = function ApiManager() {
 		getGamesDataArray: function(gameIds, callback) {
 			var path = process.env.BGG_XMLAPI_URI + 'thing?id=' + gameIds.toString();
 			request(path, function(err, res, body) {
-				gamesArrayXmlParser(body, callback);
+				// TODO: do retries
+				if (err) {
+					console.log(err);
+				} else {
+					gamesArrayXmlParser(body, callback);
+				}
 			});
 		}
 	};
