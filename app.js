@@ -4,8 +4,8 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var mongoClient = require('mongodb').MongoClient, 
-  assert = require('assert');
+var mongoClient = require('mongodb').MongoClient,
+	assert = require('assert');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -32,59 +32,59 @@ app.use('/test', test);
 app.use('/add_user', add_user);
 
 app.get('/db', function(request, response) {
-  mongoClient.connect(process.env.MONGODB_URL, function(err, db) {
-    assert.equal(null, err);
-    console.log("Connected correctly to server");
+	mongoClient.connect(process.env.MONGODB_URL, function(err, db) {
+		assert.equal(null, err);
+		console.log("Connected correctly to server");
 
-    insertDocuments(db, function() {
-      updateDocument(db, function() {
-        db.close();
-      });
-    });
-  });
+		insertDocuments(db, function() {
+			updateDocument(db, function() {
+				db.close();
+			});
+		});
+	});
 });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+	var err = new Error('Not Found');
+	err.status = 404;
+	next(err);
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+	// set locals, only providing error in development
+	res.locals.message = err.message;
+	res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+	// render the error page
+	res.status(err.status || 500);
+	res.render('error');
 });
 
 var insertDocuments = function(db, callback) {
-  var collection = db.collection('documents');
+	var collection = db.collection('documents');
 
-  collection.insertMany([
-    {a:1},{a:2},{a:3}
-  ], function(err, result) {
-    assert.equal(err, null);
-    assert.equal(3, result.result.n);
-    assert.equal(3, result.ops.length);
-    console.log("Inserted 3 documents into the document collection");
-    callback(result);
-  });
+	collection.insertMany([
+		{ a: 1 }, { a: 2 }, { a: 3 }
+	], function(err, result) {
+		assert.equal(err, null);
+		assert.equal(3, result.result.n);
+		assert.equal(3, result.ops.length);
+		console.log("Inserted 3 documents into the document collection");
+		callback(result);
+	});
 }
 
 var updateDocument = function(db, callback) {
-  var collection = db.collection('documents');
+	var collection = db.collection('documents');
 
-  collection.updateOne({a:2}, {$set:{b:1}}, function(err, result) {
-    assert.equal(err,null);
-    assert.equal(1,result.result.n);
-    console.log("Updated the document with the field a equal to 2");
-    callback(result);
-  });
+	collection.updateOne({ a: 2 }, { $set: { b: 1 } }, function(err, result) {
+		assert.equal(err, null);
+		assert.equal(1, result.result.n);
+		console.log("Updated the document with the field a equal to 2");
+		callback(result);
+	});
 }
 
 module.exports = app;
