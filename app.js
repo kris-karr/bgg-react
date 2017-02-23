@@ -12,6 +12,7 @@ var users = require('./routes/users');
 var test = require('./routes/test');
 var add_user = require('./routes/add_user');
 var test_game2db = require('./routes/test_game2db');
+var suggest = require('./routes/suggest');
 
 var app = express();
 
@@ -32,6 +33,7 @@ app.use('/users', users);
 app.use('/test', test);
 app.use('/add_user', add_user);
 app.use('/test_game2db', test_game2db);
+app.use('/suggest', suggest);
 
 app.get('/db', function(request, response) {
 	mongoClient.connect(process.env.MONGODB_URL, function(err, db) {

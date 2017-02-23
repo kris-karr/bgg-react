@@ -65,7 +65,7 @@ var findAndInsertGames = function(gameIds, db, callback) {
 
 var getGameDataFromIdSet = function(collection, gameIds, resultObjectsArray, callback) {
 	var gameIdSet = [];
-	for (var i = 0; i < 10; i++) {
+	for (var i = 0; i < 15; i++) {
 		if (gameIds.length) {
 			gameIdSet.push(gameIds.pop());
 		} else {
