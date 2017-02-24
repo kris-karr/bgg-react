@@ -1,54 +1,59 @@
 var express = require('express');
 var router = express.Router();
 var mongoClient = require('mongodb').MongoClient;
+var userUtils = require('../db_api/userUtils');
+var gameUtils = require('../db_api/gameUtils');
 
 
 router.get('/', function(req, res, next) {
 	var pageVars = {};
 	pageVars.firsttime = true;
-	res.render('suggest', pageVars);
+	mongoClient.connect(process.env.MONGODB_URI, function(err, db) {
+		userUtils.getUsernameList(db, function(usernames) {
+			console.log(usernames);
+			pageVars.usernames = usernames;
+			res.render('suggest', pageVars);
+		});
+	});
 });
 
 router.post('/', function(req, res, next) {
 	var pageVars = {};
 	pageVars.firsttime = false;
 
-	// console.log(req.body);
 	// TODO: do some validation on usernames/playerCount
-	var usernames = ['zikky', 'Fazlington']; // TODO: get usernames from req.body
+	var usernames = Object.keys(req.body);
+
 	var playerCount = 4; // TODO: get playerCount from req.body
 	// take in usernames and a player count, return a list of up to 5 games
 	mongoClient.connect(process.env.MONGODB_URI, function(err, db) {
-		getSuggestions(db, usernames, playerCount, function(suggestionList) {
-
+		userUtils.getGameIdsFromUsernames(db, usernames, function(gameIds) {
+			gameUtils.getSuggestedPlayerPolls(db, gameIds, function(pollResults) {
+				// TODO: do smarter sorting
+				pollResults.sort((a, b) => {
+					if (a.results.length <= playerCount && b.results.length > playerCount) {
+						return 1;
+					}
+					if (b.results.length <= playerCount && a.results.length > playerCount) {
+						return -1;
+					}
+					if (b.results.length <= playerCount && a.results.length <= playerCount) {
+						return 0;
+					}
+					if (a.results[playerCount - 1].sub_results[0].num_votes > b.results[playerCount - 1].sub_results[0].num_votes) {
+						return -1;
+					}
+					if (a.results[playerCount - 1].sub_results[0].num_votes < b.results[playerCount - 1].sub_results[0].num_votes) {
+						return 1;
+					}
+					return 0;
+				}).slice(0, 10).forEach(pr => {
+					console.log(pr.results[playerCount - 1].sub_results[0].num_votes);
+				});
+			});
 		});
 	});
 	res.render('suggest', pageVars);
 });
-
-var getSuggestions = function(db, usernames, playerCount, callback) {
-	var userCollection = db.collection(process.env.MONGODB_USERDATA_COLLECTION);
-
-	userCollection.find({ username: { $in: usernames } }, { gameIds: 1, _id: 0 }).toArray(function(err, docs) {
-		var gameIdList = [];
-		for (var i = 0; i < docs.length; i++) {
-			gameIdList = gameIdList.concat(docs[i].gameIds);
-		}
-
-		gameIdList = Array.from(new Set(gameIdList.map(v => v.id)));
-		getPlayerCountPolls(db, gameIdList, function(pollsList) {
-
-		});
-	});
-}
-
-var getPlayerCountPolls = function(db, gameIds, callback) {
-	var gameCollection = db.collection(process.env.MONGODB_GAMEDATA_COLLECTION);
-
-	gameCollection.find({}).toArray(function(err, docs) {
-
-	});
-}
-
 
 module.exports = router;
