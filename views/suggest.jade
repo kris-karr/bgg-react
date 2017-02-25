@@ -5,18 +5,21 @@ body
             form(action='/suggest',method='post')
                 div(data-role='fieldcontain')
                     fieldset(data-role='controlgroup')
-                        for username in usernames
-                            input(type='checkbox',name=username)
-                            | #{username}
-                            br
-                div(data-role='fieldcontain')   
+                        label(for='usernames') Users: 
+                        div
+                            for username in usernames
+                                input(type='checkbox',name='usernames', value=username)
+                                | #{username}
+                                br
+                        div
+                            label(for='playercount') Player Count: 
+                            input(type='number', name='playercount')
+                div(data-role='fieldcontain')
                     input(type='submit',value='Submit',data-transition='fade', data-theme='c')
     else
         div
             h1 
                 | Games suggestions list
             ul
-                li
-                    | GoT
-            //for gameIdObject in userData.gameIds
-            //    li=gameIdObject.name
+                for s in suggestions
+                    li=s

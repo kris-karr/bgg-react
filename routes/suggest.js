@@ -10,7 +10,6 @@ router.get('/', function(req, res, next) {
 	pageVars.firsttime = true;
 	mongoClient.connect(process.env.MONGODB_URI, function(err, db) {
 		userUtils.getUsernameList(db, function(usernames) {
-			console.log(usernames);
 			pageVars.usernames = usernames;
 			res.render('suggest', pageVars);
 		});
@@ -20,11 +19,10 @@ router.get('/', function(req, res, next) {
 router.post('/', function(req, res, next) {
 	var pageVars = {};
 	pageVars.firsttime = false;
-
+	pageVars.suggestions = [];
 	// TODO: do some validation on usernames/playerCount
-	var usernames = Object.keys(req.body);
-
-	var playerCount = 4; // TODO: get playerCount from req.body
+	var usernames = Array.isArray(req.body.usernames) ? req.body.usernames : [req.body.usernames];
+	var playerCount = req.body.playercount ? Number(req.body.playercount) : 4; // TODO: maybe use a different form control with a default value (eg number select)
 	// take in usernames and a player count, return a list of up to 5 games
 	mongoClient.connect(process.env.MONGODB_URI, function(err, db) {
 		userUtils.getGameIdsFromUsernames(db, usernames, function(gameIds) {
@@ -48,12 +46,13 @@ router.post('/', function(req, res, next) {
 					}
 					return 0;
 				}).slice(0, 10).forEach(pr => {
-					console.log(pr.results[playerCount - 1].sub_results[0].num_votes);
+					pageVars.suggestions.push(pr.name);
 				});
+				res.render('suggest', pageVars);
 			});
 		});
 	});
-	res.render('suggest', pageVars);
+	
 });
 
 module.exports = router;

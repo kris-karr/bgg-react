@@ -17,12 +17,19 @@ exports.getSuggestedPlayerPolls = function(db, gameIds, callback) {
 						}
 					},
 					_id: 0,
-					game_id: 1
+					game_id: 1,
+					names: {
+						$filter: {
+							input: '$names',
+							as: 'gamename',
+							cond: { $eq: ['$$gamename.type', 'primary'] }
+						}
+					}
 				}
 			}
 		]).toArray(function(err, docs) {
 			callback(docs.map(function(p) {
-				return { 'game_id': p.game_id, 'totalvotes': p.polls[0].totalvotes, 'results': p.polls[0].results }
+				return { 'game_id': p.game_id, 'name': p.names[0].value, 'totalvotes': p.polls[0].totalvotes, 'results': p.polls[0].results }
 			}));
 		});
 	})
