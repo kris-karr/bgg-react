@@ -1,4 +1,6 @@
-body
+extends layout
+
+block content
     if firsttime
         div
             h1 What users are present?
@@ -6,11 +8,13 @@ body
                 div(data-role='fieldcontain')
                     fieldset(data-role='controlgroup')
                         label(for='usernames') Users: 
-                        div
+                        div#nameslist
                             for username in usernames
-                                input(type='checkbox',name='usernames', value=username)
-                                | #{username}
-                                br
+                                div.test
+                                    input(id=username, type='checkbox',name='usernames', value=username)
+                                    label(for=username)
+                                        | #{username}
+                                    br
                         div
                             label(for='playercount') Player Count: 
                             input(type='number', name='playercount')

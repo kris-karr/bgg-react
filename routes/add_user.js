@@ -2,10 +2,10 @@ var express = require('express');
 var router = express.Router();
 var mongoClient = require('mongodb').MongoClient;
 var moment = require('moment');
-var UserApiServices = require('../bgg_api/user_api');
-var userApi = new UserApiServices();
-var GameApiServices = require('../bgg_api/game_api');
-var gameApi = new GameApiServices();
+var userApi = require('../bgg_api/user_api');
+var gameApi = require('../bgg_api/game_api');
+var userUtils = require('../db_api/userUtils');
+var gameUtils = require('../db_api/gameUtils');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -22,7 +22,6 @@ router.post('/', function(req, res) {
 	if (username) {
 
 		mongoClient.connect(process.env.MONGODB_URI, function(err, db) {
-			console.log("Connected correctly to server");
 			findAndInsertUser(username, db, function(docs) {
 				pageVars.userData = docs[0];
 
@@ -39,10 +38,8 @@ router.post('/', function(req, res) {
 });
 
 var findAndInsertGames = function(gameIds, db, callback) {
-	var collection = db.collection(process.env.MONGODB_GAMEDATA_COLLECTION);
 
-	// TODO: Filter out 'stale' game data
-	collection.find({ game_id: { $in: gameIds.map(n => Number(n)) } }).toArray(function(err, docs) {
+	gameUtils.getGameDataForGameIds(db, gameIds, function(docs) {
 		var retrievedGameIds = docs.map(x => x.game_id);
 		if (retrievedGameIds.length === gameIds.length) {
 			// All game data already loaded
@@ -56,6 +53,7 @@ var findAndInsertGames = function(gameIds, db, callback) {
 				}
 			}
 
+			var collection = gameUtils.gameCollectionFromDB(db);
 			getGameDataFromIdSet(collection, missingGameIds, [], function(resultObjectsArray) {
 				callback(docs.concat(resultObjectsArray));
 			});
@@ -97,11 +95,10 @@ var getGameDataFromIdSet = function(collection, gameIds, resultObjectsArray, cal
 }
 
 var findAndInsertUser = function(username, db, callback) {
-	var collection = db.collection(process.env.MONGODB_USERDATA_COLLECTION);
-
-	collection.find({ username: username }).toArray(function(err, docs) {
+	var userCollection = userUtils.userCollectionFromDB(db);
+	userUtils.getUserData(db, username, function(docs) {
 		var THREE_DAYS_AGO = moment().subtract(3, 'days').startOf('day');
-		if (docs.length && moment(docs[0].updateTimestamp).startOf('day').isAfter(THREE_DAYS_AGO)) {
+		if (docs && docs.length && moment(docs[0].updateTimestamp).startOf('day').isAfter(THREE_DAYS_AGO)) {
 			console.log("Retrieved " + username + " from collection");
 			callback(docs);
 		} else {
@@ -109,7 +106,7 @@ var findAndInsertUser = function(username, db, callback) {
 				if (userDataObject) {
 					console.log("Inserted " + username + " into collection");
 					userDataObject.updateTimestamp = moment();
-					collection.insertOne(userDataObject);
+					userCollection.insertOne(userDataObject);
 					callback([userDataObject]);
 				}
 			});

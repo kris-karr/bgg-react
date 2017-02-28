@@ -2,8 +2,7 @@ var express = require('express');
 var router = express.Router();
 var mongoClient = require('mongodb').MongoClient;
 var moment = require('moment');
-var GameApiServices = require('../bgg_api/game_api');
-var gameApi = new GameApiServices();
+var gameApi = require('../bgg_api/game_api');
 
 router.get('/', function(req, res, next) {
 		var pageVars = {};
