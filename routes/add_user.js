@@ -97,21 +97,17 @@ var getGameDataFromIdSet = function(collection, gameIds, resultObjectsArray, cal
 var findAndInsertUser = function(username, db, callback) {
 	var userCollection = userUtils.userCollectionFromDB(db);
 	userUtils.getUserData(db, username, function(doc) {
-		if (doc) {
-			// if not stale then return doc, else update existing entry
-			var THREE_DAYS_AGO = moment().subtract(3, 'days').startOf('day');
-			if (moment(doc.updateTimestamp).startOf('day').isAfter(THREE_DAYS_AGO)) {
-				callback(doc);
-			} else {
-
-			}
+		// if not stale then return doc, else update existing entry
+		var THREE_DAYS_AGO = moment().subtract(3, 'days').startOf('day');
+		if (doc && moment(doc.updateTimestamp).startOf('day').isAfter(THREE_DAYS_AGO)) {
+			callback(doc);
 		} else {
 			userApi.getUserDataObject(username, function(userDataObject) {
 				if (userDataObject) {
-					console.log("Inserted " + username + " into collection");
 					userDataObject.updateTimestamp = moment();
-					userCollection.insertOne(userDataObject);
-					callback(userDataObject);
+					userUtils.upsertUserData(db, username, userDataObject, function(doc) {
+						callback(userDataObject);
+					});
 				}
 			});
 		}
