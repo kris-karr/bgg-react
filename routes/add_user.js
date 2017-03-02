@@ -22,10 +22,10 @@ router.post('/', function(req, res) {
 	if (username) {
 
 		mongoClient.connect(process.env.MONGODB_URI, function(err, db) {
-			findAndInsertUser(username, db, function(docs) {
-				pageVars.userData = docs[0];
+			findAndInsertUser(username, db, function(doc) {
+				pageVars.userData = doc;
 
-				var gameIds = docs[0].gameIds.map(x => x.id);
+				var gameIds = doc.gameIds.map(x => x.id);
 				findAndInsertGames(gameIds, db, function(docs) {
 
 				});
@@ -96,18 +96,22 @@ var getGameDataFromIdSet = function(collection, gameIds, resultObjectsArray, cal
 
 var findAndInsertUser = function(username, db, callback) {
 	var userCollection = userUtils.userCollectionFromDB(db);
-	userUtils.getUserData(db, username, function(docs) {
-		var THREE_DAYS_AGO = moment().subtract(3, 'days').startOf('day');
-		if (docs && docs.length && moment(docs[0].updateTimestamp).startOf('day').isAfter(THREE_DAYS_AGO)) {
-			console.log("Retrieved " + username + " from collection");
-			callback(docs);
+	userUtils.getUserData(db, username, function(doc) {
+		if (doc) {
+			// if not stale then return doc, else update existing entry
+			var THREE_DAYS_AGO = moment().subtract(3, 'days').startOf('day');
+			if (moment(doc.updateTimestamp).startOf('day').isAfter(THREE_DAYS_AGO)) {
+				callback(doc);
+			} else {
+
+			}
 		} else {
 			userApi.getUserDataObject(username, function(userDataObject) {
 				if (userDataObject) {
 					console.log("Inserted " + username + " into collection");
 					userDataObject.updateTimestamp = moment();
 					userCollection.insertOne(userDataObject);
-					callback([userDataObject]);
+					callback(userDataObject);
 				}
 			});
 		}
