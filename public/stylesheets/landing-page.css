@@ -35,7 +35,7 @@ h6 {
     padding-bottom: 50px;
     text-align: center;
     color: #f8f8f8;
-    background: url(../images/intro-bg.jpg) no-repeat center center;
+    background: url(../images/finca_lg.jpg) no-repeat center center;
     background-size: cover;
 }
 
@@ -113,10 +113,14 @@ h6 {
     border-top: 3px solid #e7e7e7;
 }
 
+.myform {
+    padding-top: 50px; 
+}
+
 .banner {
     padding: 100px 0;
     color: #f8f8f8;
-    background: url(../images/banner-bg.jpg) no-repeat center center;
+    background: url(../images/railwaysoworld_lg.jpg) no-repeat center center;
     background-size: cover;
 }
 

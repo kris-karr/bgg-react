@@ -1,9 +1,12 @@
-extends layout
-
-block content
+doctype html
+html(lang='en')
+  include header.jade
+body
+    // Navigation
+    include nav.jade
     if firsttime
-        div
-            h1 What users are present?
+        .myform.container
+            h1 Whose collections are present?
             form(action='/suggest',method='post')
                 div(data-role='fieldcontain')
                     fieldset(data-role='controlgroup')
@@ -17,11 +20,15 @@ block content
                                     br
                         div
                             label(for='playercount') Player Count: 
-                            input(type='number', name='playercount')
+                            select(class='form-control', id='playercount', name='playercount')
+                                option(value=1) 1 Player
+                                - for (var i=2; i<11; i++) {
+                                  option(value=i) #{i} Players
+                                - }
                 div(data-role='fieldcontain')
                     input(type='submit',value='Submit',data-transition='fade', data-theme='c')
     else
-        div
+        .myform.container
             h1 
                 | Games suggestions list
             ul

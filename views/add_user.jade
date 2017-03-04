@@ -1,6 +1,11 @@
+doctype html
+html(lang='en')
+  include header.jade
 body
+    // Navigation
+    include nav.jade
     if firsttime
-        div
+        .myform.container
             h1 Add user data to collection manager
             form(action='/add_user',method='post')
                 div(data-role='fieldcontain')
@@ -10,7 +15,7 @@ body
                 div(data-role='fieldcontain')   
                     input(type='submit',value='Submit',data-transition='fade', data-theme='c')
     else
-        div
+        .myform.container
             h1 
                 | #{userData.username}'s data succesfully added
             ul
