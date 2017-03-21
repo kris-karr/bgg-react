@@ -25,6 +25,11 @@ body
                                 - for (var i=2; i<11; i++) {
                                   option(value=i) #{i} Players
                                 - }
+                        div
+                            label(for='designers') Designers: 
+                            select(class='form-control', id='designers', name='designers')
+                                  for d in designers
+                                    option(value=d) #{d}
                 div(data-role='fieldcontain')
                     input(type='submit',value='Submit',data-transition='fade', data-theme='c')
     else

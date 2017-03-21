@@ -22,7 +22,10 @@ router.get('/', function(req, res, next) {
 	mongoClient.connect(process.env.MONGODB_URI, function(err, db) {
 		userUtils.getUsernameList(db, function(usernames) {
 			pageVars.usernames = usernames;
-			res.render('suggest', pageVars);
+			gameUtils.getGameDesignersList(db, function(designersList) {
+				pageVars.designers = designersList;
+				res.render('suggest', pageVars);
+			});
 		});
 	});
 });

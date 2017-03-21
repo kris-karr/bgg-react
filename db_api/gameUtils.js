@@ -11,6 +11,26 @@ exports.getGameDataForGameIds = function(db, gameIds, callback) {
 	})
 }
 
+exports.getGameDesignersList = function(db, callback) {
+	var gameCollection = this.gameCollectionFromDB(db);
+	gameCollection.find({}, { _id: 0, 'designers.value': 1 }).toArray(function(err, docs) {
+		let designersSet = new Set();
+		for (var i = 0; i < docs.length; i++) {
+			docs[i].designers.forEach(d => designersSet.add(d.value));
+		}
+		let designersArray = Array.from(designersSet).sort((a, b) => {
+			if (a < b) {
+				return -1;
+			}
+			if (b < a) {
+				return 1;
+			}
+			return 0;
+		});
+		callback(designersArray);
+	})
+}
+
 exports.getSuggestedPlayerPolls = function(db, gameIds, callback) {
 	var gameCollection = this.gameCollectionFromDB(db);
 	gameCollection.aggregate([{ $match: { 'game_id': { '$in': gameIds } } },
